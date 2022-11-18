@@ -1,20 +1,23 @@
 linters:
   enable:
     - megacheck
-    - revive
+    - golint
     - govet
     - unconvert
     - megacheck
+    - structcheck
     - gas
     - gocyclo
     - dupl
     - misspell
     - unparam
-    - unused
+    - varcheck
+    - deadcode
     - typecheck
     - ineffassign
+    - varcheck
     - stylecheck
-    - exportloopref
+    - scopelint
     - gocritic
     - nakedret
     - gosimple

@@ -4,7 +4,7 @@ import "testing"
 
 func TestLRU(t *testing.T) {
 	evictCounter := 0
-	onEvicted := func(k int, v int) {
+	onEvicted := func(k interface{}, v interface{}) {
 		if k != v {
 			t.Fatalf("Evict values not equal (%v!=%v)", k, v)
 		}
@@ -32,23 +32,28 @@ func TestLRU(t *testing.T) {
 		}
 	}
 	for i := 0; i < 128; i++ {
-		if _, ok := l.Get(i); ok {
+		_, ok := l.Get(i)
+		if ok {
 			t.Fatalf("should be evicted")
 		}
 	}
 	for i := 128; i < 256; i++ {
-		if _, ok := l.Get(i); !ok {
+		_, ok := l.Get(i)
+		if !ok {
 			t.Fatalf("should not be evicted")
 		}
 	}
 	for i := 128; i < 192; i++ {
-		if ok := l.Remove(i); !ok {
+		ok := l.Remove(i)
+		if !ok {
 			t.Fatalf("should be contained")
 		}
-		if ok := l.Remove(i); ok {
+		ok = l.Remove(i)
+		if ok {
 			t.Fatalf("should not be contained")
 		}
-		if _, ok := l.Get(i); ok {
+		_, ok = l.Get(i)
+		if ok {
 			t.Fatalf("should be deleted")
 		}
 	}
@@ -71,7 +76,7 @@ func TestLRU(t *testing.T) {
 }
 
 func TestLRU_GetOldest_RemoveOldest(t *testing.T) {
-	l, err := NewLRU[int, int](128, nil)
+	l, err := NewLRU(128, nil)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -82,7 +87,7 @@ func TestLRU_GetOldest_RemoveOldest(t *testing.T) {
 	if !ok {
 		t.Fatalf("missing")
 	}
-	if k != 128 {
+	if k.(int) != 128 {
 		t.Fatalf("bad: %v", k)
 	}
 
@@ -90,7 +95,7 @@ func TestLRU_GetOldest_RemoveOldest(t *testing.T) {
 	if !ok {
 		t.Fatalf("missing")
 	}
-	if k != 128 {
+	if k.(int) != 128 {
 		t.Fatalf("bad: %v", k)
 	}
 
@@ -98,7 +103,7 @@ func TestLRU_GetOldest_RemoveOldest(t *testing.T) {
 	if !ok {
 		t.Fatalf("missing")
 	}
-	if k != 129 {
+	if k.(int) != 129 {
 		t.Fatalf("bad: %v", k)
 	}
 }
@@ -106,7 +111,7 @@ func TestLRU_GetOldest_RemoveOldest(t *testing.T) {
 // Test that Add returns true/false if an eviction occurred
 func TestLRU_Add(t *testing.T) {
 	evictCounter := 0
-	onEvicted := func(k int, v int) {
+	onEvicted := func(k interface{}, v interface{}) {
 		evictCounter++
 	}
 
@@ -125,7 +130,7 @@ func TestLRU_Add(t *testing.T) {
 
 // Test that Contains doesn't update recent-ness
 func TestLRU_Contains(t *testing.T) {
-	l, err := NewLRU[int, int](2, nil)
+	l, err := NewLRU(2, nil)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -144,7 +149,7 @@ func TestLRU_Contains(t *testing.T) {
 
 // Test that Peek doesn't update recent-ness
 func TestLRU_Peek(t *testing.T) {
-	l, err := NewLRU[int, int](2, nil)
+	l, err := NewLRU(2, nil)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -164,7 +169,7 @@ func TestLRU_Peek(t *testing.T) {
 // Test that Resize can upsize and downsize
 func TestLRU_Resize(t *testing.T) {
 	onEvictCounter := 0
-	onEvicted := func(k int, v int) {
+	onEvicted := func(k interface{}, v interface{}) {
 		onEvictCounter++
 	}
 	l, err := NewLRU(2, onEvicted)
